@@ -24,6 +24,9 @@ const Header = () => {
             <Link to="/" className="text-slate-600 hover:text-emerald-600 transition-colors">
               Home
             </Link>
+            <Link to="/roadmap" className="text-slate-600 hover:text-emerald-600 transition-colors">
+              Roadmap
+            </Link>
             {user && (
               <Link to="/dashboard" className="text-slate-600 hover:text-emerald-600 transition-colors">
                 Dashboard
