@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import Roadmap from "./pages/Roadmap";
 import AIStudio from "./pages/AIStudio";
+import Robotics from "./pages/Robotics";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/roadmap" element={<Roadmap />} />
               <Route path="/ai-studio" element={<AIStudio />} />
+              <Route path="/robotics" element={<Robotics />} />
               <Route 
                 path="/dashboard" 
                 element={
