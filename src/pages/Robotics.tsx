@@ -5,6 +5,8 @@ import RoboticsHero from '@/components/robotics/RoboticsHero';
 import RobotTwinsList from '@/components/robotics/RobotTwinsList';
 import RoboticsFeatures from '@/components/robotics/RoboticsFeatures';
 import RoboticsStats from '@/components/robotics/RoboticsStats';
+import AIAgentPanel from '@/components/robotics/AIAgentPanel';
+import LLMCapabilities from '@/components/robotics/LLMCapabilities';
 
 const Robotics = () => {
   return (
@@ -14,6 +16,8 @@ const Robotics = () => {
         <RoboticsHero />
         <RoboticsStats />
         <RobotTwinsList />
+        <AIAgentPanel />
+        <LLMCapabilities />
         <RoboticsFeatures />
       </div>
     </div>
