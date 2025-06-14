@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const pricingTiers = [
   {
@@ -48,6 +50,21 @@ const pricingTiers = [
 ];
 
 const PricingSection = () => {
+  const { user } = useAuth();
+  const { subscribed, subscriptionTier, createCheckout } = useSubscription();
+
+  const handleGetStarted = (tierName: string) => {
+    if (tierName === "Free Demo") {
+      return; // Already using free demo
+    }
+    createCheckout(tierName);
+  };
+
+  const isCurrentPlan = (tierName: string) => {
+    if (!subscribed) return tierName === "Free Demo";
+    return subscriptionTier === tierName;
+  };
+
   return (
     <section className="py-20 bg-slate-800 border-y border-slate-700">
       <div className="container mx-auto px-6">
@@ -73,12 +90,22 @@ const PricingSection = () => {
               key={index} 
               className={`bg-slate-900/50 border-slate-700 relative ${
                 tier.popular ? 'border-emerald-500 scale-105' : ''
+              } ${
+                isCurrentPlan(tier.name) ? 'ring-2 ring-emerald-500' : ''
               }`}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-emerald-600 text-white px-4 py-1">
                     Most Popular
+                  </Badge>
+                </div>
+              )}
+              
+              {isCurrentPlan(tier.name) && (
+                <div className="absolute -top-3 right-4">
+                  <Badge className="bg-blue-600 text-white px-3 py-1">
+                    Your Plan
                   </Badge>
                 </div>
               )}
@@ -104,12 +131,16 @@ const PricingSection = () => {
                 
                 <Button
                   className={`w-full ${
-                    tier.popular 
-                      ? 'bg-emerald-600 hover:bg-emerald-700' 
-                      : 'bg-slate-700 hover:bg-slate-600'
+                    isCurrentPlan(tier.name)
+                      ? 'bg-slate-600 text-slate-300 cursor-default'
+                      : tier.popular 
+                        ? 'bg-emerald-600 hover:bg-emerald-700' 
+                        : 'bg-slate-700 hover:bg-slate-600'
                   }`}
+                  onClick={() => handleGetStarted(tier.name)}
+                  disabled={isCurrentPlan(tier.name) || (tier.name !== "Free Demo" && !user)}
                 >
-                  Get Started
+                  {isCurrentPlan(tier.name) ? "Current Plan" : "Get Started"}
                 </Button>
               </CardContent>
             </Card>

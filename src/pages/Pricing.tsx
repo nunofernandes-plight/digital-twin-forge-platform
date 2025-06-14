@@ -1,10 +1,14 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Zap, Crown } from "lucide-react";
+import { Check, Star, Zap, Crown, RefreshCw } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const pricingPlans = [
   {
@@ -59,24 +63,79 @@ const pricingPlans = [
       "SLA guarantees",
       "On-premise deployment option"
     ],
-    buttonText: "Contact Sales",
+    buttonText: "Start Enterprise",
     buttonVariant: "default" as const,
     popular: false
   }
 ];
 
 const Pricing = () => {
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const {
+    subscribed,
+    subscriptionTier,
+    subscriptionEnd,
+    loading,
+    checkSubscription,
+    createCheckout,
+    manageSubscription
+  } = useSubscription();
+
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+
+    if (success) {
+      toast({
+        title: "Success!",
+        description: "Your subscription has been activated. Checking status...",
+      });
+      // Check subscription status after successful payment
+      setTimeout(() => {
+        checkSubscription();
+      }, 2000);
+    } else if (canceled) {
+      toast({
+        title: "Payment Canceled",
+        description: "Your subscription payment was canceled.",
+        variant: "destructive",
+      });
+    }
+  }, [searchParams, toast, checkSubscription]);
+
   const handlePlanSelect = (planName: string) => {
     if (planName === "Free Demo") {
-      // Handle free demo signup
-      console.log("Starting free demo");
-    } else if (planName === "Enterprise") {
-      // Handle enterprise contact
-      console.log("Contacting sales for enterprise");
-    } else {
-      // Handle paid plan subscription
-      console.log(`Starting ${planName} subscription`);
+      toast({
+        title: "Free Demo",
+        description: "You're already using the free demo features!",
+      });
+      return;
     }
+
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to subscribe to a plan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createCheckout(planName);
+  };
+
+  const isCurrentPlan = (planName: string) => {
+    if (!subscribed) return planName === "Free Demo";
+    return subscriptionTier === planName;
+  };
+
+  const getButtonText = (plan: any) => {
+    if (isCurrentPlan(plan.name)) {
+      return subscribed ? "Current Plan" : "Current Plan";
+    }
+    return plan.buttonText;
   };
 
   return (
@@ -89,10 +148,50 @@ const Pricing = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Choose Your Plan
           </h1>
-          <p className="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
             Select the perfect plan for your team size and manufacturing needs. 
             All plans include our core AI-powered digital twin technology.
           </p>
+          
+          {/* Subscription Status */}
+          {user && (
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 max-w-md mx-auto mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Current Status</p>
+                  <p className="text-white font-medium">
+                    {subscribed ? `${subscriptionTier} Plan` : "Free Demo"}
+                  </p>
+                  {subscribed && subscriptionEnd && (
+                    <p className="text-xs text-slate-400">
+                      Renews: {new Date(subscriptionEnd).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={checkSubscription}
+                    disabled={loading}
+                    className="border-slate-600 text-slate-300"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  </Button>
+                  {subscribed && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={manageSubscription}
+                      className="border-emerald-600 text-emerald-400 hover:bg-emerald-600 hover:text-white"
+                    >
+                      Manage
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -105,12 +204,22 @@ const Pricing = () => {
                 key={index} 
                 className={`bg-slate-800/50 border-slate-700 relative ${
                   plan.popular ? 'border-emerald-500 scale-105' : ''
+                } ${
+                  isCurrentPlan(plan.name) ? 'ring-2 ring-emerald-500' : ''
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-emerald-600 text-white px-4 py-1">
                       Most Popular
+                    </Badge>
+                  </div>
+                )}
+                
+                {isCurrentPlan(plan.name) && (
+                  <div className="absolute -top-3 right-4">
+                    <Badge className="bg-blue-600 text-white px-3 py-1">
+                      Your Plan
                     </Badge>
                   </div>
                 )}
@@ -149,16 +258,19 @@ const Pricing = () => {
                   
                   <Button
                     className={`w-full ${
-                      plan.popular 
-                        ? 'bg-emerald-600 hover:bg-emerald-700' 
-                        : plan.buttonVariant === 'outline' 
-                          ? 'border-slate-600 text-slate-300 hover:bg-slate-700' 
-                          : 'bg-slate-700 hover:bg-slate-600'
+                      isCurrentPlan(plan.name)
+                        ? 'bg-slate-600 text-slate-300 cursor-default' 
+                        : plan.popular 
+                          ? 'bg-emerald-600 hover:bg-emerald-700' 
+                          : plan.buttonVariant === 'outline' 
+                            ? 'border-slate-600 text-slate-300 hover:bg-slate-700' 
+                            : 'bg-slate-700 hover:bg-slate-600'
                     }`}
-                    variant={plan.buttonVariant}
+                    variant={isCurrentPlan(plan.name) ? "secondary" : plan.buttonVariant}
                     onClick={() => handlePlanSelect(plan.name)}
+                    disabled={isCurrentPlan(plan.name)}
                   >
-                    {plan.buttonText}
+                    {getButtonText(plan)}
                   </Button>
                 </CardContent>
               </Card>
