@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Roadmap from "./pages/Roadmap";
 import AIStudio from "./pages/AIStudio";
 import Robotics from "./pages/Robotics";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/roadmap" element={<Roadmap />} />
               <Route path="/ai-studio" element={<AIStudio />} />
               <Route path="/robotics" element={<Robotics />} />
