@@ -2,6 +2,8 @@
 
 ## Project info
 
+[![Tip in Crypto](https://tip.md/badge.svg)](https://tip.md/nunofernandes-plight)
+
 **URL**: https://lovable.dev/projects/17a9a66e-4c47-4c14-b753-b477d2b8940a
 
 ## How can I edit this code?
@@ -13,6 +15,9 @@ There are several ways of editing your application.
 Simply visit the [Lovable Project](https://lovable.dev/projects/17a9a66e-4c47-4c14-b753-b477d2b8940a) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
+
+
+[![Tip in Crypto](https://tip.md/badge.svg)](https://tip.md/nunofernandes-plight)
 
 **Use your preferred IDE**
 
@@ -69,5 +74,7 @@ Simply open [Lovable](https://lovable.dev/projects/17a9a66e-4c47-4c14-b753-b477d
 Yes, you can!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+[![Tip in Crypto](https://tip.md/badge.svg)](https://tip.md/nunofernandes-plight)
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
